@@ -1,20 +1,28 @@
 # Creating Documents
-<code>
-> db.moviesScratch.insertOne({"title":"Rocky","year":"1976","imdb":"tt0075148"})
+
+### db.moviesScratch.insertOne({"title":"Rocky","year":"1976","imdb":"tt0075148"})  
+
 {
         "acknowledged" : true,
         "insertedId" : ObjectId("57afc075258f77901f409101")
 }
-> db.moviesScratch.find().pretty()
+
+### db.moviesScratch.find().pretty()  
+
 {
         "_id" : ObjectId("57afc075258f77901f409101"),
         "title" : "Rocky",
         "year" : "1976",
         "imdb" : "tt0075148"
 }
-> db.moviesScratch.insertOne({"title":"Rocky","year":"1976","_id":"tt0075148"})
+
+###  db.moviesScratch.insertOne({"title":"Rocky","year":"1976","_id":"tt0075148"})  
+
 { "acknowledged" : true, "insertedId" : "tt0075148" }
-> db.moviesScratch.find().pretty()
+
+
+### db.moviesScratch.find().pretty()  
+
 {
         "_id" : ObjectId("57afc075258f77901f409101"),
         "title" : "Rocky",
@@ -23,34 +31,35 @@
 }
 { "_id" : "tt0075148", "title" : "Rocky", "year" : "1976" }
 
-> db.moviesScratch.insertMany(
-...     [
-...         {
-...     "imdb" : "tt0084726",
-...     "title" : "Star Trek II: The Wrath of Khan",
-...     "year" : 1982,
-...     "type" : "movie"
-...         },
-...         {
-...     "imdb" : "tt0796366",
-...     "title" : "Star Trek",
-...     "year" : 2009,
-...     "type" : "movie"
-...         },
-...         {
-...     "imdb" : "tt1408101",
-...     "title" : "Star Trek Into Darkness",
-...     "year" : 2013,
-...     "type" : "movie"
-...         },
-...         {
-...     "imdb" : "tt0117731",
-...     "title" : "Star Trek: First Contact",
-...     "year" : 1996,
-...     "type" : "movie"
-...         }
-...     ]
-... );
+### db.moviesScratch.insertMany(  
+     [
+         {
+     "imdb" : "tt0084726",
+     "title" : "Star Trek II: The Wrath of Khan",
+     "year" : 1982,
+     "type" : "movie"
+         },
+         {
+     "imdb" : "tt0796366",
+     "title" : "Star Trek",
+     "year" : 2009,
+     "type" : "movie"
+         },
+         {
+     "imdb" : "tt1408101",
+     "title" : "Star Trek Into Darkness",
+     "year" : 2013,
+     "type" : "movie"
+         },
+         {
+     "imdb" : "tt0117731",
+     "title" : "Star Trek: First Contact",
+     "year" : 1996,
+     "type" : "movie"
+         }
+     ]
+ );  
+ 
 {
         "acknowledged" : true,
         "insertedIds" : [
