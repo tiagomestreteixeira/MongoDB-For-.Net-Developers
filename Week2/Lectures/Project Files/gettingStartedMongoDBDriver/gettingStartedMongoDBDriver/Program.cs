@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using System;
@@ -24,13 +25,18 @@ namespace gettingStartedMongoDBDriver
 
         static async Task MainAsync(string[] args)
         {
-            BsonClassMap.RegisterClassMap<Person>(cm =>
+
+            // Map Bson Elements method 1:
+            /* BsonClassMap.RegisterClassMap<Person>(cm =>
             {
                 cm.AutoMap();
                 cm.MapMember(x => x.Name).SetElementName("name");
             });
-
-
+            */
+            // Map Bson Elements method 2:
+            var conventionPack = new ConventionPack();
+            conventionPack.Add(new CamelCaseElementNameConvention());
+            ConventionRegistry.Register("camelcase", conventionPack, t => true);
             /* Lesson 1 */
             var connectionString = "mongodb://localhost:27017";
             var client = new MongoClient(connectionString);
@@ -72,7 +78,9 @@ namespace gettingStartedMongoDBDriver
         class Person
         {
             public ObjectId Id { get; set; }
+            //[BsonElement("name")] -> alternative to conventions
             public string Name { get; set; }
+            //[BsonRepresentation(BsonType.String)] -> alternative to conventions
             public int Age { get; set; }
             public List<string> Colors { get; set; }
             public List<Pet> Pets { get; set; }
