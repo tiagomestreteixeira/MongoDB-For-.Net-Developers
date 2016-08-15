@@ -1,3 +1,3 @@
-# MongoDB-For-.Net-Developers
+# MongoDB For .Net Developers
 MongoDB for .Net Developers - MongoDB, Inc. Mooc
 
