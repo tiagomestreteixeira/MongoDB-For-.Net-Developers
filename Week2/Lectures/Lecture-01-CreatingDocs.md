@@ -1,5 +1,5 @@
 # Creating Documents
-
+<code>
 > db.moviesScratch.insertOne({"title":"Rocky","year":"1976","imdb":"tt0075148"})
 {
         "acknowledged" : true,
@@ -195,3 +195,4 @@ BulkWriteResult/this.toError@src/mongo/shell/bulk_api.js:335:24
 Bulk/this.execute@src/mongo/shell/bulk_api.js:1177:1
 DBCollection.prototype.insertMany@src/mongo/shell/crud_api.js:281:5
 @(shell):1:1
+</code>
