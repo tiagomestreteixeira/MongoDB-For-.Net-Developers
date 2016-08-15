@@ -16,16 +16,125 @@ namespace gettingStartedMongoDBDriver
     {
         static void Main(string[] args)
         {
-            MainAsync(args).Wait();
+            // MainAsync(args).Wait();
+            // InsertOneAsync(args).Wait();
+            // findQueryWithBsonDocument(args).Wait();
+            findQueryWithClass(args).Wait();
             Console.WriteLine();
             Console.WriteLine("Press Enter");
             Console.ReadLine();
+        }
 
+        static async Task findQueryWithClass(string[] args)
+        {
+            var connectionString = "mongodb://localhost:27017";
+            var client = new MongoClient(connectionString);
+            var db = client.GetDatabase("test");
+            var colPerson = db.GetCollection<Person>("people");
+
+            // var builder = Builders<Person>.Filter;
+            // var filter = builder.Lt(x => x.Age, 30) & !builder.Eq(x =>x.Name, "Smith");
+            //var filter = builder.And(builder.Lt("Age", 30), builder.Eq("Name", "Jones"));
+            //var list = await colPerson.Find(filter).ToListAsync();
+            var list = await colPerson.Find(x => x.Age < 30 && x.Name != "Smith")
+                .ToListAsync();
+            foreach (var doc in list)
+            {
+                Console.WriteLine(doc);
+            }
+
+        }
+
+        static async Task findQueryWithBsonDocument(string[] args)
+        {
+            var connectionString = "mongodb://localhost:27017";
+            var client = new MongoClient(connectionString);
+            var db = client.GetDatabase("test");
+            var colPerson = db.GetCollection<BsonDocument>("people");
+
+            /** With cursor :
+            using (var cursor = await colPerson.Find(new BsonDocument()).ToCursorAsync())
+            {
+                while(await cursor.MoveNextAsync())
+                {
+                    foreach(var doc in cursor.Current)
+                    {
+                        Console.WriteLine(doc);
+                    }
+                }
+            }
+            */
+
+            /** With list:
+            var list = await colPerson.Find(new BsonDocument()).ToListAsync();
+            foreach (var doc in list)
+            {
+                Console.WriteLine(doc);
+            }
+            */
+
+            /** With ForEachAsync:
+            await colPerson.Find(new BsonDocument())
+                .ForEachAsync(doc => Console.WriteLine(doc));
+            */
+
+            /** With filter: */
+            // var filter = new BsonDocument("Name", "Smith");
+            // var filter = new BsonDocument("Age", new BsonDocument("$lt",30));
+            // var filter = new BsonDocument("$and", new BsonArray
+            // {
+            //    new BsonDocument("Age", new BsonDocument("$lt", 30)),
+            //    new BsonDocument("Name", "Jones")
+            // });
+            // var builder = FilterDefinitionBuilder<BsonDocument>();
+            var builder = Builders<BsonDocument>.Filter;
+            // var filter = builder.Lt("Age", 30);
+            // var filter = builder.Lt("Age", 30) & !builder.Eq("Name", "Jones"));
+            var filter = builder.And(builder.Lt("Age", 30), builder.Eq("Name","Jones"));
+            var list = await colPerson.Find(filter).ToListAsync();
+            // Or var list = await colPerson.Find("{Name:'Smith'}").ToListAsync();
+            foreach (var doc in list)
+            {
+                Console.WriteLine(doc);
+            }
+
+        }
+
+        static async Task InsertOneAsync(string[] args)
+        {
+            var connectionString = "mongodb://localhost:27017";
+            var client = new MongoClient(connectionString);
+            var db = client.GetDatabase("test");
+
+            var col = db.GetCollection<BsonDocument>("people");
+
+            var doc = new BsonDocument
+            {
+                {"Name", "Smith" },
+                {"Age", 30 },
+                {"Profession", "Hacker" }
+            };
+
+            var doc2 = new BsonDocument
+            {
+                {"SomethingElse", true }
+            };
+
+            var colPerson = db.GetCollection<Person>("people");
+            var person = new Person
+            {
+                Name = "Jones",
+                Age = 24,
+                Profession = "Hacker"
+            };
+            await colPerson.InsertOneAsync(person);
+            //await col.InsertManyAsync(new[] { doc, doc2 });
+            //await col.InsertOneAsync(doc);
         }
 
         static async Task MainAsync(string[] args)
         {
-
+            /* Lesson 4 */
             // Map Bson Elements method 1:
             /* BsonClassMap.RegisterClassMap<Person>(cm =>
             {
@@ -82,9 +191,15 @@ namespace gettingStartedMongoDBDriver
             public string Name { get; set; }
             //[BsonRepresentation(BsonType.String)] -> alternative to conventions
             public int Age { get; set; }
+            public string Profession { get; set; }
             public List<string> Colors { get; set; }
             public List<Pet> Pets { get; set; }
             public BsonDocument ExtraElements { get; set; }
+
+            public override string ToString()
+            {
+                return string.Format("Id: {0}, Name: \"{1}\", Age: {2}, Profession: \"{3}\"", Id, Name, Age, Profession);
+            }
         }
         
         class Pet
