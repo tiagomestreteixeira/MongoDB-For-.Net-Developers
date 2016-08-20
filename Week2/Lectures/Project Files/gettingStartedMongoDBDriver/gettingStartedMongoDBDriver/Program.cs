@@ -145,6 +145,7 @@ namespace gettingStartedMongoDBDriver
             // Map Bson Elements method 2:
             var conventionPack = new ConventionPack();
             conventionPack.Add(new CamelCaseElementNameConvention());
+                                                                    // t => true means apply to all fields
             ConventionRegistry.Register("camelcase", conventionPack, t => true);
             /* Lesson 1 */
             var connectionString = "mongodb://localhost:27017";
