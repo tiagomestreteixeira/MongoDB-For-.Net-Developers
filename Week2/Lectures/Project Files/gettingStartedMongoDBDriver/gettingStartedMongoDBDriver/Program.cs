@@ -45,10 +45,54 @@ namespace gettingStartedMongoDBDriver
             // sorting(args).Wait();
             // projections(args).Wait();
             // update(args).Wait();
-            delete(args).Wait();
+            // delete(args).Wait();
+            findOneAndOperation(args).Wait();
             Console.WriteLine();
             Console.WriteLine("Press Enter");
             Console.ReadLine();
+        }
+
+        static async Task findOneAndOperation(string[] args)
+        {
+            await db.DropCollectionAsync("widgets");
+            var docs = Enumerable.Range(0, 10).Select(i => new Widget { Id = i, X = i });
+            await colWidgets.InsertManyAsync(docs);
+
+            // These are atomic Operations!!!
+
+            //var result = await colWidgets.FindOneAndUpdateAsync(
+            //       x => x.X > 5,
+            //       Builders<Widget>.Update.Inc(x => x.X, 1));
+
+            //var result = await colWidgets.FindOneAndUpdateAsync<Widget>(
+            //       x => x.X > 5,
+            //       Builders<Widget>.Update.Inc(x => x.X, 1),
+            //       new FindOneAndUpdateOptions<Widget, Widget>
+            //       {
+            //           ReturnDocument = ReturnDocument.After,
+            //       });
+
+            //var result = await colWidgets.FindOneAndUpdateAsync<Widget>(
+            //       x => x.X > 5,
+            //       Builders<Widget>.Update.Inc(x => x.X, 1),
+            //       new FindOneAndUpdateOptions<Widget, Widget>
+            //       {
+            //           ReturnDocument = ReturnDocument.After,
+            //           Sort = Builders<Widget>.Sort.Descending(x => x.X)    
+            //       });
+
+            var result = await colWidgets.FindOneAndDeleteAsync<Widget>(
+                   x => x.X > 5,
+                   new FindOneAndDeleteOptions<Widget, Widget>
+                   {
+                       Sort = Builders<Widget>.Sort.Descending(x => x.X)
+                   });
+
+            Console.WriteLine(result);
+            Console.WriteLine();
+
+            await colWidgetsBson.Find(new BsonDocument())
+                .ForEachAsync(x => Console.WriteLine(x));
         }
 
         static async Task delete(string[] args)
@@ -341,7 +385,7 @@ namespace gettingStartedMongoDBDriver
             public int X { get; set; }
             public override string ToString()
             {
-                return string.Format("Id: {0}, X: \"{1}\", Age: {2}, Profession: \"{3}\"", Id, X);
+                return string.Format("Id: {0}, X: \"{1}\"", Id, X);
             }
         }
     }
