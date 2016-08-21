@@ -17,12 +17,14 @@ namespace gettingStartedMongoDBDriver
         static string connectionString = "mongodb://localhost:27017";
         static MongoClient client = new MongoClient(connectionString);
         static IMongoDatabase db = client.GetDatabase("test");
-        static IMongoCollection<BsonDocument> colBson = db.GetCollection<BsonDocument>("people");
+        static IMongoCollection<BsonDocument> colPersonBson = db.GetCollection<BsonDocument>("people");
         static IMongoCollection<Person> colPerson = db.GetCollection<Person>("people");
+        static IMongoCollection<BsonDocument> colWidgetsBson = db.GetCollection<BsonDocument>("widgets");
+        static IMongoCollection<Widget> colWidgets = db.GetCollection<Widget>("widgets");
 
         static void printDocs(List<BsonDocument> listBson, List<Person> listPerson)
         {
-            if(listBson == null)
+            if (listBson == null)
             {
                 foreach (var doc in listBson)
                     Console.WriteLine(doc);
@@ -41,10 +43,65 @@ namespace gettingStartedMongoDBDriver
             // findQueryWithBsonDocument(args).Wait();
             // findQueryWithClass(args).Wait();
             // sorting(args).Wait();
-            projections(args).Wait();
+            // projections(args).Wait();
+            update(args).Wait();
             Console.WriteLine();
             Console.WriteLine("Press Enter");
             Console.ReadLine();
+        }
+
+        static async Task update(string[] args)
+        {
+            
+            await db.DropCollectionAsync("widgets");
+
+            // For Bson Documents:
+            // var docs = Enumerable.Range(0, 10).Select(i => new BsonDocument("_id", i).Add("x", i));
+            // await colWidgetsBson.InsertManyAsync(docs);
+
+            // For Widget Documents:
+            var docs = Enumerable.Range(0, 10).Select(i => new Widget { Id = i, X = i });
+            await colWidgets.InsertManyAsync(docs);
+
+            // var result = await colWidgetsBson.ReplaceOneAsync(
+            //    new BsonDocument("_id", 5), 
+            //    new BsonDocument("_id",5).Add("x",30));
+
+            // var result = await colWidgetsBson.ReplaceOneAsync(
+            //    new BsonDocument("x", 5),
+            //    new BsonDocument("x", 30));
+
+            // var result = await colWidgetsBson.ReplaceOneAsync(
+            //    Builders<BsonDocument>.Filter.Eq("x",5),
+            //    new BsonDocument("x", 30),
+            //    new UpdateOptions { IsUpsert = true });
+
+            //var result = await colWidgetsBson.UpdateOneAsync(
+            //    Builders<BsonDocument>.Filter.Eq("x", 5),
+            //    new BsonDocument("$inc",new BsonDocument("x",5)));
+
+            //var result = await colWidgetsBson.UpdateOneAsync(
+            //    Builders<BsonDocument>.Filter.Eq("x", 5),
+            //    Builders<BsonDocument>.Update.Inc("x",10));
+
+            //var result = await colWidgetsBson.UpdateManyAsync(
+            //    Builders<BsonDocument>.Filter.Gt("x", 5),
+            //    Builders<BsonDocument>.Update.Inc("x", 10));
+
+            //var result = await colWidgets.UpdateManyAsync(
+            //    Builders<Widget>.Filter.Gt(x => x.X, 5),
+            //    Builders<Widget>.Update.Inc(x => x.X, 10));
+
+            //var result = await colWidgets.UpdateManyAsync(
+            //    x => x.X > 5,
+            //    Builders<Widget>.Update.Inc(x => x.X, 10));
+
+            var result = await colWidgets.UpdateManyAsync(
+                 x => x.X > 5,
+                 Builders<Widget>.Update.Inc(x => x.X, 10).Set("J", 20));
+
+            await colWidgetsBson.Find(new BsonDocument())
+                .ForEachAsync(x => Console.WriteLine(x));
         }
 
         static async Task projections(string[] args)
@@ -92,7 +149,7 @@ namespace gettingStartedMongoDBDriver
         static async Task findQueryWithBsonDocument(string[] args)
         {
             /** With cursor :
-            using (var cursor = await colBson.Find(new BsonDocument()).ToCursorAsync())
+            using (var cursor = await colPersonBson.Find(new BsonDocument()).ToCursorAsync())
             {
                 while(await cursor.MoveNextAsync())
                 {
@@ -105,12 +162,12 @@ namespace gettingStartedMongoDBDriver
             */
 
             /** With list:
-            var list = await colBson.Find(new BsonDocument()).ToListAsync();
+            var list = await colPersonBson.Find(new BsonDocument()).ToListAsync();
             printDocs(list,null);
             */
 
             /** With ForEachAsync:
-            await colBson.Find(new BsonDocument())
+            await colPersonBson.Find(new BsonDocument())
                 .ForEachAsync(doc => Console.WriteLine(doc));
             */
 
@@ -126,9 +183,9 @@ namespace gettingStartedMongoDBDriver
             var builder = Builders<BsonDocument>.Filter;
             // var filter = builder.Lt("Age", 30);
             // var filter = builder.Lt("Age", 30) & !builder.Eq("Name", "Jones"));
-            var filter = builder.And(builder.Lt("Age", 30), builder.Eq("Name","Jones"));
-            var list = await colBson.Find(filter).ToListAsync();
-            // Or var list = await colBson.Find("{Name:'Smith'}").ToListAsync();
+            var filter = builder.And(builder.Lt("Age", 30), builder.Eq("Name", "Jones"));
+            var list = await colPersonBson.Find(filter).ToListAsync();
+            // Or var list = await colPersonBson.Find("{Name:'Smith'}").ToListAsync();
             printDocs(list, null);
         }
 
@@ -153,26 +210,26 @@ namespace gettingStartedMongoDBDriver
                 Profession = "Hacker"
             };
             await colPerson.InsertOneAsync(person);
-            // await colBson.InsertManyAsync(new[] { doc, doc2 });
-            // await colBson.InsertOneAsync(doc);
+            // await colPersonBson.InsertManyAsync(new[] { doc, doc2 });
+            // await colPersonBson.InsertOneAsync(doc);
         }
 
         static async Task sorting(string[] args)
         {
-            // var list = await colBson.Find(new BsonDocument())
+            // var list = await colPersonBson.Find(new BsonDocument())
             //       .Skip(1)
             //       .Limit(1)
             //       .ToListAsync();
 
-            // var list = await colBson.find(new bsondocument())
+            // var list = await colPersonBson.find(new bsondocument())
             //      .sort("{age:1}")
             //      .tolistasync();
 
-            // var list = await colBson.Find(new BsonDocument())
+            // var list = await colPersonBson.Find(new BsonDocument())
             //        .Sort(new BsonDocument("Age", 1))
             //        .ToListAsync();
 
-            // var list = await colBson.Find(new BsonDocument())
+            // var list = await colPersonBson.Find(new BsonDocument())
             //        .Sort(Builders<BsonDocument>.Sort.Ascending("Age").Descending("Name"))
             //        .ToListAsync();
 
@@ -201,7 +258,7 @@ namespace gettingStartedMongoDBDriver
             // Map Bson Elements method 2:
             var conventionPack = new ConventionPack();
             conventionPack.Add(new CamelCaseElementNameConvention());
-                                                                    // t => true means apply to all fields
+            // t => true means apply to all fields
             ConventionRegistry.Register("camelcase", conventionPack, t => true);
 
             /* Lesson 2 */
@@ -211,7 +268,7 @@ namespace gettingStartedMongoDBDriver
             };
             doc.Add("age", 30);
             doc["profession"] = "hacker";
-            
+
             var nestedArray = new BsonArray();
             nestedArray.Add(new BsonDocument("color", "red"));
             doc.Add("array", nestedArray);
@@ -236,7 +293,7 @@ namespace gettingStartedMongoDBDriver
         }
 
         /* In Lesson 3 - POCO Representation */
-        class Person
+        private class Person
         {
             public ObjectId Id { get; set; }
             //[BsonElement("name")] -> alternative to conventions
@@ -253,11 +310,22 @@ namespace gettingStartedMongoDBDriver
                 return string.Format("Id: {0}, Name: \"{1}\", Age: {2}, Profession: \"{3}\"", Id, Name, Age, Profession);
             }
         }
-        
-        class Pet
+
+        private class Pet
         {
             public string Name { get; set; }
             public string Type { get; set; }
+        }
+
+        private class Widget
+        {
+            public int Id { get; set; }
+            [BsonElement("x")]
+            public int X { get; set; }
+            public override string ToString()
+            {
+                return string.Format("Id: {0}, X: \"{1}\", Age: {2}, Profession: \"{3}\"", Id, X);
+            }
         }
     }
 }
