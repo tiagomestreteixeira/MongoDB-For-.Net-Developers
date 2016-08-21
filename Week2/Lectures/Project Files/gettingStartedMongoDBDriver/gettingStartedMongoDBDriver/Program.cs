@@ -49,7 +49,32 @@ namespace gettingStartedMongoDBDriver
 
         static async Task projections(string[] args)
         {
+            // var list = await colPerson.Find(new BsonDocument())
+            //     .Project("{Name: 1, _id :0}")
+            //     .ToListAsync();
 
+            // var list = await colPerson.Find(new BsonDocument())
+            //    .Project(new BsonDocument("Name",1).Add("_id",0))
+            //    .ToListAsync();
+
+            // var list = await colPerson.Find(new BsonDocument())
+            //    .Project(Builders<Person>.Projection.Include("Name").Exclude("_id"))
+            //    .ToListAsync();
+
+            // var list = await colPerson.Find(new BsonDocument())
+            //    .Project<Person>(Builders<Person>.Projection.Include(x => x.Name).Exclude(x => x.Id))
+            //    .ToListAsync();
+
+            // var list = await colPerson.Find(new BsonDocument())
+            //    .Project(x => x.Name)
+            //    .ToListAsync();
+
+            var list = await colPerson.Find(new BsonDocument())
+                .Project(x => new { x.Name, CalcAge = x.Age + 20 })
+                .ToListAsync();
+
+            foreach (var doc in list)
+                Console.WriteLine(doc);
         }
 
         static async Task findQueryWithClass(string[] args)
