@@ -19,7 +19,8 @@ namespace gettingStartedMongoDBDriver
             // MainAsync(args).Wait();
             // InsertOneAsync(args).Wait();
             // findQueryWithBsonDocument(args).Wait();
-            findQueryWithClass(args).Wait();
+            //findQueryWithClass(args).Wait();
+            Sorting(args).Wait();
             Console.WriteLine();
             Console.WriteLine("Press Enter");
             Console.ReadLine();
@@ -130,6 +131,50 @@ namespace gettingStartedMongoDBDriver
             await colPerson.InsertOneAsync(person);
             //await col.InsertManyAsync(new[] { doc, doc2 });
             //await col.InsertOneAsync(doc);
+        }
+
+        static async Task Sorting(string[] args)
+        {
+            var connectionString = "mongodb://localhost:27017";
+            var client = new MongoClient(connectionString);
+            var db = client.GetDatabase("test");
+            //var col = db.GetCollection<BsonDocument>("people");
+
+            //var list = await col.Find(new BsonDocument())
+            //       .Skip(1)
+            //       .Limit(1)
+            //       .ToListAsync();
+
+            //var list = await col.find(new bsondocument())
+            //      .sort("{age:1}")
+            //      .tolistasync();
+
+            //var list = await col.Find(new BsonDocument())
+            //        .Sort(new BsonDocument("Age", 1))
+            //        .ToListAsync();
+
+            //var list = await col.Find(new BsonDocument())
+            //        .Sort(Builders<BsonDocument>.Sort.Ascending("Age").Descending("Name"))
+            //        .ToListAsync();
+
+            var col = db.GetCollection<Person>("people");
+
+
+            //var list = await col.Find(new BsonDocument())
+            //        .Sort(Builders<Person>.Sort.Ascending(x => x.Age))
+            //        .ToListAsync();
+
+            var list = await col.Find(new BsonDocument())
+                    .SortBy(x => x.Age)
+                    .ThenByDescending(x => x.Name)
+                    .ToListAsync();
+
+            foreach (var doc in list)
+                Console.WriteLine(doc);
+
+
+
+
         }
 
         static async Task MainAsync(string[] args)
