@@ -20,13 +20,27 @@ namespace gettingStartedMongoDBDriver
         static IMongoCollection<BsonDocument> colBson = db.GetCollection<BsonDocument>("people");
         static IMongoCollection<Person> colPerson = db.GetCollection<Person>("people");
 
+        static void printDocs(List<BsonDocument> listBson, List<Person> listPerson)
+        {
+            if(listBson == null)
+            {
+                foreach (var doc in listBson)
+                    Console.WriteLine(doc);
+            }
+            else
+            {
+                foreach (var doc in listPerson)
+                    Console.WriteLine(doc);
+            }
+        }
+
         static void Main(string[] args)
         {
             // MainAsync(args).Wait();
             // InsertOneAsync(args).Wait();
             // findQueryWithBsonDocument(args).Wait();
-            //findQueryWithClass(args).Wait();
-            //sorting(args).Wait();
+            // findQueryWithClass(args).Wait();
+            // sorting(args).Wait();
             projections(args).Wait();
             Console.WriteLine();
             Console.WriteLine("Press Enter");
@@ -42,14 +56,12 @@ namespace gettingStartedMongoDBDriver
         {
             // var builder = Builders<Person>.Filter;
             // var filter = builder.Lt(x => x.Age, 30) & !builder.Eq(x =>x.Name, "Smith");
-            //var filter = builder.And(builder.Lt("Age", 30), builder.Eq("Name", "Jones"));
-            //var list = await colPerson.Find(filter).ToListAsync();
+            // var filter = builder.And(builder.Lt("Age", 30), builder.Eq("Name", "Jones"));
+            // var list = await colPerson.Find(filter).ToListAsync();
             var list = await colPerson.Find(x => x.Age < 30 && x.Name != "Smith")
                 .ToListAsync();
-            foreach (var doc in list)
-            {
-                Console.WriteLine(doc);
-            }
+
+            printDocs(null, list);
         }
 
         static async Task findQueryWithBsonDocument(string[] args)
@@ -69,10 +81,7 @@ namespace gettingStartedMongoDBDriver
 
             /** With list:
             var list = await colBson.Find(new BsonDocument()).ToListAsync();
-            foreach (var doc in list)
-            {
-                Console.WriteLine(doc);
-            }
+            printDocs(list,null);
             */
 
             /** With ForEachAsync:
@@ -95,11 +104,7 @@ namespace gettingStartedMongoDBDriver
             var filter = builder.And(builder.Lt("Age", 30), builder.Eq("Name","Jones"));
             var list = await colBson.Find(filter).ToListAsync();
             // Or var list = await colBson.Find("{Name:'Smith'}").ToListAsync();
-            foreach (var doc in list)
-            {
-                Console.WriteLine(doc);
-            }
-
+            printDocs(list, null);
         }
 
         static async Task InsertOneAsync(string[] args)
@@ -123,30 +128,30 @@ namespace gettingStartedMongoDBDriver
                 Profession = "Hacker"
             };
             await colPerson.InsertOneAsync(person);
-            //await colBson.InsertManyAsync(new[] { doc, doc2 });
-            //await colBson.InsertOneAsync(doc);
+            // await colBson.InsertManyAsync(new[] { doc, doc2 });
+            // await colBson.InsertOneAsync(doc);
         }
 
         static async Task sorting(string[] args)
         {
-            //var list = await colBson.Find(new BsonDocument())
+            // var list = await colBson.Find(new BsonDocument())
             //       .Skip(1)
             //       .Limit(1)
             //       .ToListAsync();
 
-            //var list = await colBson.find(new bsondocument())
+            // var list = await colBson.find(new bsondocument())
             //      .sort("{age:1}")
             //      .tolistasync();
 
-            //var list = await colBson.Find(new BsonDocument())
+            // var list = await colBson.Find(new BsonDocument())
             //        .Sort(new BsonDocument("Age", 1))
             //        .ToListAsync();
 
-            //var list = await colBson.Find(new BsonDocument())
+            // var list = await colBson.Find(new BsonDocument())
             //        .Sort(Builders<BsonDocument>.Sort.Ascending("Age").Descending("Name"))
             //        .ToListAsync();
 
-            //var list = await colPerson.Find(new BsonDocument())
+            // var list = await colPerson.Find(new BsonDocument())
             //        .Sort(Builders<Person>.Sort.Ascending(x => x.Age))
             //        .ToListAsync();
 
@@ -155,8 +160,7 @@ namespace gettingStartedMongoDBDriver
                     .ThenByDescending(x => x.Name)
                     .ToListAsync();
 
-            foreach (var doc in list)
-                Console.WriteLine(doc);
+            printDocs(null, list);
         }
 
         static async Task MainAsync(string[] args)
