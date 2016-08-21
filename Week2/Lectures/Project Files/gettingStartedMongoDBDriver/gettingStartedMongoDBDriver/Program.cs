@@ -44,10 +44,27 @@ namespace gettingStartedMongoDBDriver
             // findQueryWithClass(args).Wait();
             // sorting(args).Wait();
             // projections(args).Wait();
-            update(args).Wait();
+            // update(args).Wait();
+            delete(args).Wait();
             Console.WriteLine();
             Console.WriteLine("Press Enter");
             Console.ReadLine();
+        }
+
+        static async Task delete(string[] args)
+        {
+            await db.DropCollectionAsync("widgets");
+            var docs = Enumerable.Range(0, 10).Select(i => new Widget { Id = i, X = i });
+            await colWidgets.InsertManyAsync(docs);
+
+            //var result = await colWidgets.DeleteOneAsync(
+            //        x => x.X > 5);
+
+            var result = await colWidgets.DeleteManyAsync(
+                    x => x.X > 5);
+
+            await colWidgetsBson.Find(new BsonDocument())
+                .ForEachAsync(x => Console.WriteLine(x));
         }
 
         static async Task update(string[] args)
