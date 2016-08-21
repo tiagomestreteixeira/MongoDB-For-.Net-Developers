@@ -46,10 +46,25 @@ namespace gettingStartedMongoDBDriver
             // projections(args).Wait();
             // update(args).Wait();
             // delete(args).Wait();
-            findOneAndOperation(args).Wait();
+            //findOneAndOperation(args).Wait();
+            bulkOperation(args).Wait();
             Console.WriteLine();
             Console.WriteLine("Press Enter");
             Console.ReadLine();
+        }
+
+        static async Task bulkOperation(string[] args)
+        {
+            await db.DropCollectionAsync("widgets");
+            var docs = Enumerable.Range(0, 10).Select(i => new BsonDocument("_id", i).Add("x", i));
+            await colWidgetsBson.InsertManyAsync(docs);
+
+            var result = colWidgetsBson.BulkWriteAsync(new WriteModel<BsonDocument>[]
+            {
+                new DeleteOneModel<BsonDocument>("{x: 5}"),
+                new DeleteOneModel<BsonDocument>("{x: 7}"),
+                new UpdateManyModel<BsonDocument>("{x: {$lt: 7}}", "{$inc: {x: 1}}")
+            });
         }
 
         static async Task findOneAndOperation(string[] args)
